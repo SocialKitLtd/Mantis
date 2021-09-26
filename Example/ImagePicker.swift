@@ -58,7 +58,7 @@ open class ImagePicker: NSObject {
         
         alertController.addAction(UIAlertAction(title: "Cancel", style: .cancel, handler: nil))
         
-        alertController.handlePopupInBigScreenIfNeeded(sourceView: sourceView, permittedArrowDirections: [.down, .up])
+     
 
         self.presentationController?.present(alertController, animated: true)
     }

@@ -103,13 +103,6 @@ class CropViewModel: NSObject {
         return getTotalRadias(by: radians)
     }
     
-    func getRatioType(byImageIsOriginalHorizontal isHorizontal: Bool) -> RatioType {
-        if isUpOrUpsideDown() {
-            return isHorizontal ? .horizontal : .vertical
-        } else {
-            return isHorizontal ? .vertical : .horizontal
-        }
-    }
     
     func isUpOrUpsideDown() -> Bool {
         return rotationType == .none || rotationType == .counterclockwise180
@@ -188,9 +181,6 @@ extension CropViewModel {
         viewStatus = .initial
     }
     
-    func setRotatingStatus(by angle: CGAngle) {
-        viewStatus = .rotating(angle: angle)
-    }
     
     func setDegree90RotatingStatus() {
         viewStatus = .degree90Rotating

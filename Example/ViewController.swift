@@ -35,9 +35,11 @@ class ViewController: UIViewController, CropViewControllerDelegate {
             return
         }
         
-        let config = Mantis.Config()
+        var config = Mantis.Config()
+        
         let cropViewController = Mantis.cropViewController(image: image,
                                                            config: config)
+        
         cropViewController.modalPresentationStyle = .fullScreen
         cropViewController.delegate = self
         present(cropViewController, animated: true)
@@ -75,7 +77,6 @@ class ViewController: UIViewController, CropViewControllerDelegate {
         }
         
         var config = Mantis.Config()
-        config.showRotationDial = false
         
         let cropViewController = Mantis.cropViewController(image: image, config: config)
         cropViewController.modalPresentationStyle = .fullScreen
@@ -83,63 +84,7 @@ class ViewController: UIViewController, CropViewControllerDelegate {
         present(cropViewController, animated: true)
     }
     
-    @IBAction func alwayUserOnPresetRatioPresent(_ sender: Any) {
-        guard let image = image else {
-            return
-        }
-        
-        let config = Mantis.Config()
-        
-        let cropViewController = Mantis.cropViewController(image: image, config: config)
-        cropViewController.modalPresentationStyle = .fullScreen
-        cropViewController.delegate = self
-        cropViewController.config.presetFixedRatioType = .alwaysUsingOnePresetFixedRatio(ratio: 16.0 / 9.0)
-        present(cropViewController, animated: true)
-    }
-    
-    
-    @IBAction func customizedCropToolbarButtonTouched(_ sender: Any) {
-        guard let image = image else {
-            return
-        }
-        var config = Mantis.Config()
-        
-        config.cropToolbarConfig.cropToolbarHeightForVertialOrientation = 44
-        config.cropToolbarConfig.cropToolbarWidthForHorizontalOrientation = 80
-        
-        let cropToolbar = CustomizedCropToolbar(frame: .zero)
-        
-        let cropViewController = Mantis.cropViewController(image: image,
-                                                           config: config,
-                                                           cropToolbar: cropToolbar)
-        cropViewController.modalPresentationStyle = .fullScreen
-        cropViewController.delegate = self
-        present(cropViewController, animated: true)
-        
-    }
-    
-    
-    
-    @IBAction func customizedCropToolbarWithoutListButtonTouched(_ sender: Any) {
-        guard let image = image else {
-            return
-        }
-        var config = Mantis.Config()
-        
-        config.cropToolbarConfig.cropToolbarHeightForVertialOrientation = 44
-        config.cropToolbarConfig.cropToolbarWidthForHorizontalOrientation = 80
-        
-        let cropToolbar = CustomizedCropToolbarWithoutList(frame: .zero)
-        
-        let cropViewController = Mantis.cropViewController(image: image,
-                                                           config: config,
-                                                           cropToolbar: cropToolbar)
-        cropViewController.modalPresentationStyle = .fullScreen
-        cropViewController.delegate = self
-        present(cropViewController, animated: true)
-        
-    }
-    
+
     
     @IBAction func clockwiseRotationButtonTouched(_ sender: Any) {
         guard let image = image else {
@@ -147,7 +92,6 @@ class ViewController: UIViewController, CropViewControllerDelegate {
         }
         
         var config = Mantis.Config()
-        config.cropToolbarConfig.toolbarButtonOptions = [.clockwiseRotate, .reset, .ratio, .alterCropper90Degree];
         
         let cropViewController = Mantis.cropViewController(image: image,
                                                            config: config)
@@ -157,7 +101,6 @@ class ViewController: UIViewController, CropViewControllerDelegate {
     }
     
     @IBAction func cropShapes(_ sender: Any) {
-        showCropShapeList()
     }
     
     @IBAction func darkBackgroundEffect(_ sender: Any) {
@@ -172,55 +115,9 @@ class ViewController: UIViewController, CropViewControllerDelegate {
         presentWith(backgroundEffect: .none)
     }
     
-    typealias CropShapeItem = (type: Mantis.CropShapeType, title: String)
     
-    let cropShapeList: [CropShapeItem] = [
-        (.rect, "Rect"),
-        (.square, "Square"),
-        (.ellipse(), "Ellipse"),
-        (.circle(), "Circle"),
-        (.polygon(sides: 5), "pentagon"),
-        (.polygon(sides: 6), "hexagon"),
-        (.roundedRect(radiusToShortSide: 0.1), "Rounded rectangle"),
-        (.diamond(), "Diamond"),
-        (.heart(), "Heart"),
-        (.path(points: [CGPoint(x: 0.5, y: 0),
-                        CGPoint(x: 0.6, y: 0.3),
-                        CGPoint(x: 1, y: 0.5),
-                        CGPoint(x: 0.6, y: 0.8),
-                        CGPoint(x: 0.5, y: 1),
-                        CGPoint(x: 0.5, y: 0.7),
-                        CGPoint(x: 0, y: 0.5)]), "Arbitrary path")
-    ]
-    
-    private func showCropShapeList() {
-        guard let image = image else {
-            return
-        }
-        
-        let actionSheet = UIAlertController(title: nil, message: nil, preferredStyle: .actionSheet)
-        
-        for item in cropShapeList {
-            let action = UIAlertAction(title: item.title, style: .default) {[weak self] _ in
-                guard let self = self else {return}
-                var config = Mantis.Config()
-                config.cropShapeType = item.type
-                
-                let cropViewController = Mantis.cropViewController(image: image, config: config)
-                cropViewController.modalPresentationStyle = .fullScreen
-                cropViewController.delegate = self
-                self.present(cropViewController, animated: true)
-            }
-            actionSheet.addAction(action)
-        }
-        
-        actionSheet.handlePopupInBigScreenIfNeeded(sourceView: cropShapesButton)
-        
-        let cancelAction = UIAlertAction(title: "Cancel", style: .cancel)
-        actionSheet.addAction(cancelAction)
-        
-        present(actionSheet, animated: true)
-    }
+
+
     
     private func presentWith(backgroundEffect effect: CropVisualEffectType) {
         guard let image = image else {
