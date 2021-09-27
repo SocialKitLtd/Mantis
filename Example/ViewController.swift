@@ -8,41 +8,26 @@
 
 import UIKit
 import Mantis
+var image = UIImage(named: "Rectangle.png")
 
 class ViewController: UIViewController, CropViewControllerDelegate {
-    var image = UIImage(named: "sunflower.jpg")
     
     @IBOutlet weak var croppedImageView: UIImageView!
-    var imagePicker: ImagePicker!
-    @IBOutlet weak var cropShapesButton: UIButton!
     
-    override func viewDidLoad() {
-        super.viewDidLoad()
-        
-        self.imagePicker = ImagePicker(presentationController: self, delegate: self)
-    }
-    
+   
     override var preferredStatusBarStyle: UIStatusBarStyle {
         return .lightContent
     }
     
-    @IBAction func getImageFromAlbum(_ sender: UIButton) {
-        self.imagePicker.present(from: sender)
-    }
+   
     
     @IBAction func normalPresent(_ sender: Any) {
-        guard let image = image else {
-            return
-        }
         
-        var config = Mantis.Config()
+        let vc = VC()
         
-        let cropViewController = Mantis.cropViewController(image: image,
-                                                           config: config)
-        
-        cropViewController.modalPresentationStyle = .fullScreen
-        cropViewController.delegate = self
-        present(cropViewController, animated: true)
+        present(vc, animated: true)
+
+       
     }
     
     @IBAction func presentWithPresetTransformation(_ sender: Any) {
@@ -71,79 +56,8 @@ class ViewController: UIViewController, CropViewControllerDelegate {
         present(cropViewController, animated: true)
     }
     
-    @IBAction func hideRotationDialPresent(_ sender: Any) {
-        guard let image = image else {
-            return
-        }
-        
-        var config = Mantis.Config()
-        
-        let cropViewController = Mantis.cropViewController(image: image, config: config)
-        cropViewController.modalPresentationStyle = .fullScreen
-        cropViewController.delegate = self
-        present(cropViewController, animated: true)
-    }
-    
+   
 
-    
-    @IBAction func clockwiseRotationButtonTouched(_ sender: Any) {
-        guard let image = image else {
-            return
-        }
-        
-        var config = Mantis.Config()
-        
-        let cropViewController = Mantis.cropViewController(image: image,
-                                                           config: config)
-        cropViewController.modalPresentationStyle = .fullScreen
-        cropViewController.delegate = self
-        present(cropViewController, animated: true)
-    }
-    
-    @IBAction func cropShapes(_ sender: Any) {
-    }
-    
-    @IBAction func darkBackgroundEffect(_ sender: Any) {
-        presentWith(backgroundEffect: .dark)
-    }
-    
-    @IBAction func lightBackgroundEffect(_ sender: Any) {
-        presentWith(backgroundEffect: .light)
-    }
-    
-    @IBAction func noBackgroundEffect(_ sender: Any) {
-        presentWith(backgroundEffect: .none)
-    }
-    
-    
-
-
-    
-    private func presentWith(backgroundEffect effect: CropVisualEffectType) {
-        guard let image = image else {
-            return
-        }
-        
-        var config = Mantis.Config()
-        config.cropVisualEffectType = effect
-        let cropViewController = Mantis.cropViewController(image: image,
-                                                           config: config)
-        cropViewController.modalPresentationStyle = .fullScreen
-        cropViewController.delegate = self
-        present(cropViewController, animated: true)
-    }
-    
-    override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
-        if let nc = segue.destination as? UINavigationController,
-           let vc = nc.viewControllers.first as? EmbeddedCropViewController {
-            vc.image = image
-            vc.didGetCroppedImage = {[weak self] image in
-                self?.croppedImageView.image = image
-                self?.dismiss(animated: true)
-            }
-        }
-    }
-    
     func cropViewControllerDidCrop(_ cropViewController: CropViewController, cropped: UIImage, transformation: Transformation) {
         print(transformation);
         croppedImageView.image = cropped
@@ -155,14 +69,69 @@ class ViewController: UIViewController, CropViewControllerDelegate {
     }
 }
 
-extension ViewController: ImagePickerDelegate {
+
+class VC: UIViewController {
     
-    func didSelect(image: UIImage?) {
-        guard let image = image else {
-            return
-        }
+    lazy var proxyView: ProxyView = {
+        return ProxyView(target: cropViewController.targetCropView)
+    }()
+    let cropViewController = Mantis.cropViewController(image: image!,
+                                                       config: Mantis.Config())
+    let container = UIView()
+    
+    let ratio: CGFloat = 1
+    override func viewDidLoad() {
+        super.viewDidLoad()
+        view.addSubview(proxyView)
+        view.addSubview(container)
+        container.backgroundColor = .red
+        view.backgroundColor = .blue
         
-        self.image = image
-        self.croppedImageView.image = image
+        cropViewController.view.alpha = 0.4
+        cropViewController.view.clipsToBounds = false
+        container.clipsToBounds = false
+        cropViewController.addAsChildTo(parentVc: self, inside: container)
     }
+    
+    override func viewDidLayoutSubviews() {
+        super.viewDidLayoutSubviews()
+        proxyView.frame = view.bounds
+        container.bounds.size.width = 100
+        container.bounds.size.height = 100 * ratio
+        
+        
+        container.center = view.center
+    
+    }
+    
+    
+    
+}
+
+
+public extension UIViewController {
+    func addAsChildTo(parentVc: UIViewController, inside container: UIView, offset: CGPoint = .zero) {
+        parentVc.addChild(self)
+        self.view.translatesAutoresizingMaskIntoConstraints = false
+        container.addSubview(self.view)
+        
+        view.bindFrameToSuperviewBounds(offset: offset)
+        didMove(toParent: parentVc)
+    }
+    
+    func removeChildViewController() {
+        willMove(toParent: nil)
+        view.removeFromSuperview()
+        removeFromParent()
+    }
+    
+    func addAsSafeAreaChildTo(parentVc: UIViewController, inside container: UIView) {
+          parentVc.addChild(self)
+          self.view.translatesAutoresizingMaskIntoConstraints = false
+          container.addSubview(self.view)
+          
+          view.bindMarginsToSuperviewWithBottomSafeArea()
+          didMove(toParent: parentVc)
+      }
+    
 }

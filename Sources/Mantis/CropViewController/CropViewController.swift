@@ -52,11 +52,15 @@ public class CropViewController: UIViewController {
     public weak var delegate: CropViewControllerDelegate?
     public var config = Mantis.Config()
     
-    private lazy var cropView = CropView(image: image, viewModel: CropViewModel())
+    lazy var cropView = CropView(image: image, viewModel: CropViewModel())
     private var initialLayout = false
     
     deinit {
         print("CropViewController deinit.")
+    }
+    
+    public var targetCropView: UIView {
+        return cropView.scrollView
     }
     
     init(image: UIImage,
@@ -83,6 +87,8 @@ public class CropViewController: UIViewController {
         createCropView()
      
         initLayout()
+        
+        cropView.clipsToBounds = false
     }
     
     override public func viewDidLayoutSubviews() {

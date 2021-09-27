@@ -12,8 +12,6 @@ extension CropView {
     override func hitTest(_ point: CGPoint, with event: UIEvent?) -> UIView? {
         let newPoint = self.convert(point, to: self)
         
-       
-        
         if (gridOverlayView.frame.insetBy(dx: -hotAreaUnit/2, dy: -hotAreaUnit/2).contains(newPoint) &&
             !gridOverlayView.frame.insetBy(dx: hotAreaUnit/2, dy: hotAreaUnit/2).contains(newPoint))
         {
