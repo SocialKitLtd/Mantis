@@ -49,11 +49,11 @@ class ViewController: UIViewController, CropViewControllerDelegate {
         
         config.presetTransformationType = .presetInfo(info: transform)
         
-        let cropViewController = Mantis.cropViewController(image: image,
-                                                           config: config)
-        cropViewController.modalPresentationStyle = .fullScreen
-        cropViewController.delegate = self
-        present(cropViewController, animated: true)
+//        let cropViewController = Mantis.cropViewController(image: image,
+//                                                           config: config)
+//        cropViewController.modalPresentationStyle = .fullScreen
+//        cropViewController.delegate = self
+//        present(cropViewController, animated: true)
     }
     
    
@@ -64,7 +64,7 @@ class ViewController: UIViewController, CropViewControllerDelegate {
         self.dismiss(animated: true)
     }
     
-    func cropViewControllerDidCancel(_ cropViewController: CropViewController, original: UIImage) {
+    func cropViewControllerDidCancel(_ cropViewController: CropViewController) {
         self.dismiss(animated: true)
     }
 }
@@ -75,8 +75,13 @@ class VC: UIViewController {
     lazy var proxyView: ProxyView = {
         return ProxyView(target: cropViewController.targetCropView)
     }()
-    let cropViewController = Mantis.cropViewController(image: image!,
-                                                       config: Mantis.Config())
+    
+    let imageContainer = ImageContainer(image: image!)
+     
+    lazy var cropViewController: CropViewController = {
+        return CropViewController(embeddableView: imageContainer)
+    }()
+    
     let container = UIView()
     
     let ratio: CGFloat = 1

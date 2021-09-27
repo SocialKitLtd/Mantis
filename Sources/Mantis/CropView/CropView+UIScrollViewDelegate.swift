@@ -10,7 +10,7 @@ import UIKit
 
 extension CropView: UIScrollViewDelegate {
     func viewForZooming(in scrollView: UIScrollView) -> UIView? {
-        return imageContainer
+        return embeddableView
     }
     
     func scrollViewWillBeginDragging(_ scrollView: UIScrollView) {

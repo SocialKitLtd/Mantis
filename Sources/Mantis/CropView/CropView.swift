@@ -39,11 +39,11 @@ let cropViewPadding:CGFloat = 3
 class CropView: UIView {
     var cropVisualEffectType: CropVisualEffectType = .blurDark
     
-    var image: UIImage {
-        didSet {
-            imageContainer.image = image
-        }
-    }
+//    var image: UIImage {
+//        didSet {
+//            imageContainer.image = image
+//        }
+//    }
     let viewModel: CropViewModel
     
     weak var delegate: CropViewDelegate? {
@@ -55,12 +55,12 @@ class CropView: UIView {
     var aspectRatioLockEnabled = false
 
     // Referred to in extension
-    let imageContainer: ImageContainer
+    let embeddableView: EmbeddableView
     let gridOverlayView: CropOverlayView
 
     lazy var scrollView = CropScrollView(frame: bounds)
     lazy var cropMaskViewManager = CropMaskViewManager(with: self,
-                                                       cropRatio: CGFloat(getImageRatioH()),
+                                                       cropRatio: embeddableView.ratio,
                                                        cropVisualEffectType: cropVisualEffectType)
 
     var manualZoomed = false
@@ -72,11 +72,10 @@ class CropView: UIView {
         print("CropView deinit.")
     }
     
-    init(image: UIImage, viewModel: CropViewModel = CropViewModel()) {
-        self.image = image
+    init(embeddableView: EmbeddableView, viewModel: CropViewModel = CropViewModel()) {
         self.viewModel = viewModel
         
-        imageContainer = ImageContainer()
+        self.embeddableView = embeddableView
         gridOverlayView = CropOverlayView()
 
         super.init(frame: CGRect.zero)
@@ -176,24 +175,23 @@ class CropView: UIView {
     
     private func setupUI() {
         setupScrollView()
-        imageContainer.image = image
         
-        scrollView.addSubview(imageContainer)
-        scrollView.imageContainer = imageContainer
+        scrollView.addSubview(embeddableView)
+        scrollView.embeddableView = embeddableView
         
         setGridOverlayView()
     }
     
     func resetUIFrame() {
         cropMaskViewManager.removeMaskViews()
-        cropMaskViewManager.setup(in: self, cropRatio: CGFloat(getImageRatioH()))
+        cropMaskViewManager.setup(in: self, cropRatio: embeddableView.ratio)
         viewModel.resetCropFrame(by: getInitialCropBoxRect())
                 
         scrollView.transform = .identity
         scrollView.resetBy(rect: viewModel.cropBoxFrame)
         
-        imageContainer.frame = scrollView.bounds
-        imageContainer.center = CGPoint(x: scrollView.bounds.width/2, y: scrollView.bounds.height/2)
+        embeddableView.frame = scrollView.bounds
+        embeddableView.center = CGPoint(x: scrollView.bounds.width/2, y: scrollView.bounds.height/2)
 
         gridOverlayView.superview?.bringSubviewToFront(gridOverlayView)
         
@@ -243,7 +241,7 @@ class CropView: UIView {
             return
         }
         
-        if imageContainer.contains(rect: newCropBoxFrame, fromView: self) {
+        if embeddableView.contains(rect: newCropBoxFrame, fromView: self) {
             viewModel.cropBoxFrame = newCropBoxFrame
         } else {
             let minX = max(viewModel.cropBoxFrame.minX, newCropBoxFrame.minX)
@@ -254,25 +252,25 @@ class CropView: UIView {
             var rect: CGRect
             
             rect = CGRect(x: minX, y: minY, width: newCropBoxFrame.width, height: maxY - minY)
-            if imageContainer.contains(rect: rect, fromView: self) {
+            if embeddableView.contains(rect: rect, fromView: self) {
                 viewModel.cropBoxFrame = rect
                 return
             }
             
             rect = CGRect(x: minX, y: minY, width: maxX - minX, height: newCropBoxFrame.height)
-            if imageContainer.contains(rect: rect, fromView: self) {
+            if embeddableView.contains(rect: rect, fromView: self) {
                 viewModel.cropBoxFrame = rect
                 return
             }
             
             rect = CGRect(x: newCropBoxFrame.minX, y: minY, width: newCropBoxFrame.width, height: maxY - minY)
-            if imageContainer.contains(rect: rect, fromView: self) {
+            if embeddableView.contains(rect: rect, fromView: self) {
                 viewModel.cropBoxFrame = rect
                 return
             }
 
             rect = CGRect(x: minX, y: newCropBoxFrame.minY, width: maxX - minX, height: newCropBoxFrame.height)
-            if imageContainer.contains(rect: rect, fromView: self) {
+            if embeddableView.contains(rect: rect, fromView: self) {
                 viewModel.cropBoxFrame = rect
                 return
             }
@@ -288,13 +286,13 @@ extension CropView {
    
     
     private func getInitialCropBoxRect() -> CGRect {
-        guard image.size.width > 0 && image.size.height > 0 else {
+        guard embeddableView.representableSize.width > 0 && embeddableView.representableSize.height > 0 else {
             return .zero
         }
         
         let outsideRect = getContentBounds()
                 
-        let insideRect = CGRect(x: 0, y: 0, width: image.size.width, height: image.size.height)
+        let insideRect = CGRect(x: 0, y: 0, width: embeddableView.representableSize.width, height: embeddableView.representableSize.height)
        
         return GeometryHelper.getInscribeRect(fromOutsideRect: outsideRect, andInsideRect: insideRect)
     }
@@ -325,22 +323,22 @@ extension CropView {
     }
     
     fileprivate func getImageLeftTopAnchorPoint() -> CGPoint {
-        if imageContainer.bounds.size == .zero {
+        if embeddableView.bounds.size == .zero {
             return viewModel.cropLeftTopOnImage
         }
         
-        let lt = gridOverlayView.convert(CGPoint(x: 0, y: 0), to: imageContainer)
-        let point = CGPoint(x: lt.x / imageContainer.bounds.width, y: lt.y / imageContainer.bounds.height)
+        let lt = gridOverlayView.convert(CGPoint(x: 0, y: 0), to: embeddableView)
+        let point = CGPoint(x: lt.x / embeddableView.bounds.width, y: lt.y / embeddableView.bounds.height)
         return point
     }
     
     fileprivate func getImageRightBottomAnchorPoint() -> CGPoint {
-        if imageContainer.bounds.size == .zero {
+        if embeddableView.bounds.size == .zero {
             return viewModel.cropRightBottomOnImage
         }
         
-        let rb = gridOverlayView.convert(CGPoint(x: gridOverlayView.bounds.width, y: gridOverlayView.bounds.height), to: imageContainer)
-        let point = CGPoint(x: rb.x / imageContainer.bounds.width, y: rb.y / imageContainer.bounds.height)
+        let rb = gridOverlayView.convert(CGPoint(x: gridOverlayView.bounds.width, y: gridOverlayView.bounds.height), to: embeddableView)
+        let point = CGPoint(x: rb.x / embeddableView.bounds.width, y: rb.y / embeddableView.bounds.height)
         return point
     }
     
@@ -401,7 +399,7 @@ extension CropView {
             
             if zoom {
                 let zoomRect = convert(scaleFrame,
-                                            to: scrollView.imageContainer)
+                                            to: scrollView.embeddableView)
                 scrollView.zoom(to: zoomRect, animated: false)
             }
             scrollView.checkContentOffset()
@@ -423,7 +421,7 @@ extension CropView {
     }
     
     func makeSureImageContainsCropOverlay() {
-        if !imageContainer.contains(rect: gridOverlayView.frame, fromView: self, tolerance: 0.25) {
+        if !embeddableView.contains(rect: gridOverlayView.frame, fromView: self, tolerance: 0.25) {
             scrollView.zoomScaleToBound(animated: true)
         }
     }
@@ -494,7 +492,7 @@ extension CropView {
     
     func getCropInfo() -> CropInfo {
         
-        let rect = imageContainer.convert(imageContainer.bounds,
+        let rect = embeddableView.convert(embeddableView.bounds,
                                           to: self)
         let point = rect.center
         let zeroPoint = gridOverlayView.center
@@ -506,15 +504,11 @@ extension CropView {
             rotation: 0,
             scale: scrollView.zoomScale,
             cropSize: gridOverlayView.frame.size,
-            imageViewSize: imageContainer.bounds.size
+            imageViewSize: embeddableView.bounds.size
         )
         
     }
-    
-    func crop() -> (croppedImage: UIImage?, transformation: Transformation) {
-        return crop(image)
-    }
-        
+     
     
     func reset() {
         scrollView.removeFromSuperview()
@@ -539,7 +533,7 @@ extension CropView {
 
     func setFixedRatioCropBox(zoom: Bool = true, cropBox: CGRect? = nil) {
         let refCropBox = cropBox ?? getInitialCropBoxRect()
-        viewModel.setCropBoxFrame(by: refCropBox, and: getImageRatioH())
+        viewModel.setCropBoxFrame(by: refCropBox, and: embeddableView.ratio)
         
         let contentRect = getContentBounds()
         adjustUIForNewCrop(contentRect: contentRect, animation: false, zoom: zoom) { [weak self] in
@@ -553,10 +547,6 @@ extension CropView {
         scrollView.updateMinZoomScale()
     }
     
-    
-    func getImageRatioH() -> Double {
-        return Double(image.ratioH())
-    }
     
     func transform(byTransformInfo transformation: Transformation, rotateDial: Bool = true) {
 

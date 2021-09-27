@@ -25,22 +25,6 @@
 import UIKit
 
 
-public func cropViewController(image: UIImage,
-                               config: Config = Config()) -> CropViewController {
-    return CropViewController(image: image,
-                              config: config)
-}
-
-public func cropCustomizableViewController(image: UIImage,
-                                           config: Config = Config()) -> CropViewController {
-    return CropViewController(image: image,
-                              config: config)
-}
-
-public func getCroppedImage(byCropInfo info: CropInfo, andImage image: UIImage) -> UIImage? {
-    return image.getCroppedImage(byCropInfo: info)
-}
-
 public typealias Transformation = (
     offset: CGPoint,
     rotation: CGFloat,

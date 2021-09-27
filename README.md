@@ -71,12 +71,12 @@ github "guoyingtao/Mantis"
 ```swift
 public protocol CropViewControllerDelegate: class {
     func cropViewControllerDidCrop(_ cropViewController: CropViewController, cropped: UIImage, transformation: Transformation)
-    func cropViewControllerDidCancel(_ cropViewController: CropViewController, original: UIImage)
+    func cropViewControllerDidCancel(_ cropViewController: CropViewController)
     
     // The implementaion of the following functions are optional
-    func cropViewControllerDidFailToCrop(_ cropViewController: CropViewController, original: UIImage)     
+    func cropViewControllerDidFailToCrop(_ cropViewController: CropViewController)     
     func cropViewControllerDidBeginResize(_ cropViewController: CropViewController)
-    func cropViewControllerDidEndResize(_ cropViewController: CropViewController, original: UIImage, cropInfo: CropInfo)    
+    func cropViewControllerDidEndResize(_ cropViewController: CropViewController, cropInfo: CropInfo)    
 }
 ```
 </details>

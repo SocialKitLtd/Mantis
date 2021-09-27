@@ -8,7 +8,16 @@
 
 import UIKit
 
-class ImageContainer: UIView {
+public class ImageContainer: UIView, EmbeddableView {
+ 
+    public var representableSize: CGSize {
+        return image.size
+    }
+    
+    public var ratio: CGFloat {
+        return image.size.width / image.size.height
+    }
+    
 
     lazy private var imageView: UIImageView = {
         let imageView = UIImageView(frame: bounds)
@@ -21,21 +30,26 @@ class ImageContainer: UIView {
         return imageView
     } ()
 
-    var image: UIImage? {
-        didSet {
-            imageView.frame = bounds
-            imageView.image = image
-            
-            imageView.isUserInteractionEnabled = true
-        }
+    let image: UIImage
+    
+    
+    public init(image: UIImage) {
+        self.image = image
+        super.init(frame: .zero)
+        imageView.image = image
+
     }
     
-    override func layoutSubviews() {
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
+    
+    public override func layoutSubviews() {
         super.layoutSubviews()
         imageView.frame = bounds
     }
     
-    func contains(rect: CGRect, fromView view: UIView, tolerance: CGFloat = 1e-6) -> Bool {
+    public func contains(rect: CGRect, fromView view: UIView, tolerance: CGFloat = 1e-6) -> Bool {
         let newRect = view.convert(rect, to: self)
         
         let p1 = newRect.origin

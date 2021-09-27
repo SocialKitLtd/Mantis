@@ -10,7 +10,7 @@ import UIKit
 
 class CropScrollView: UIScrollView {
     
-    weak var imageContainer: ImageContainer?
+    weak var embeddableView: EmbeddableView?
     
     var touchesBegan = {}
     var touchesCancelled = {}
@@ -63,12 +63,12 @@ class CropScrollView: UIScrollView {
     }
     
     private func getBoundZoomScale() -> CGFloat {
-        guard let imageContainer = imageContainer else {
+        guard let embeddableView = embeddableView else {
             return 1.0
         }
         
-        let scaleW = bounds.width / imageContainer.bounds.width
-        let scaleH = bounds.height / imageContainer.bounds.height
+        let scaleW = bounds.width / embeddableView.bounds.width
+        let scaleH = bounds.height / embeddableView.bounds.height
         
         return max(scaleW, scaleH)
     }

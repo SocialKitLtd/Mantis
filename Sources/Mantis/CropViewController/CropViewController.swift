@@ -27,32 +27,36 @@ import UIKit
 public protocol CropViewControllerDelegate: AnyObject {
     func cropViewControllerDidCrop(_ cropViewController: CropViewController,
                                    cropped: UIImage, transformation: Transformation)
-    func cropViewControllerDidFailToCrop(_ cropViewController: CropViewController, original: UIImage)
-    func cropViewControllerDidCancel(_ cropViewController: CropViewController, original: UIImage)
+    func cropViewControllerDidFailToCrop(_ cropViewController: CropViewController)
+    func cropViewControllerDidCancel(_ cropViewController: CropViewController)
     
     func cropViewControllerDidBeginResize(_ cropViewController: CropViewController)
-    func cropViewControllerDidEndResize(_ cropViewController: CropViewController, original: UIImage, cropInfo: CropInfo)    
+    func cropViewControllerDidEndResize(_ cropViewController: CropViewController, cropInfo: CropInfo)    
 }
 
 public extension CropViewControllerDelegate where Self: UIViewController {
-    func cropViewControllerDidFailToCrop(_ cropViewController: CropViewController, original: UIImage) {}
+    func cropViewControllerDidFailToCrop(_ cropViewController: CropViewController) {}
     func cropViewControllerDidBeginResize(_ cropViewController: CropViewController) {}
-    func cropViewControllerDidEndResize(_ cropViewController: CropViewController, original: UIImage, cropInfo: CropInfo) {}   
+    func cropViewControllerDidEndResize(_ cropViewController: CropViewController, cropInfo: CropInfo) {}   
 }
 
 public class CropViewController: UIViewController {
     /// When a CropViewController is used in a storyboard,
     /// passing an image to it is needed after the CropViewController is created.
-    public var image: UIImage! {
-        didSet {
-            cropView.image = image
-        }
-    }
+//    public var image: UIImage! {
+//        didSet {
+//            cropView.image = image
+//        }
+//    }
+//
+    
+    
+    
     
     public weak var delegate: CropViewControllerDelegate?
     public var config = Mantis.Config()
     
-    lazy var cropView = CropView(image: image, viewModel: CropViewModel())
+    let cropView: CropView
     private var initialLayout = false
     
     deinit {
@@ -63,9 +67,10 @@ public class CropViewController: UIViewController {
         return cropView.scrollView
     }
     
-    init(image: UIImage,
+    public init(embeddableView: EmbeddableView,
          config: Mantis.Config = Mantis.Config()) {
-        self.image = image
+        
+        self.cropView = .init(embeddableView: embeddableView, viewModel: CropViewModel())
         
         self.config = config
 
@@ -74,7 +79,9 @@ public class CropViewController: UIViewController {
     }
     
     required init?(coder aDecoder: NSCoder) {
+        fatalError()
         super.init(coder: aDecoder)
+        
     }
     
  
@@ -245,7 +252,7 @@ public class CropViewController: UIViewController {
     }
     
     private func handleCancel() {
-        self.delegate?.cropViewControllerDidCancel(self, original: self.image)
+        self.delegate?.cropViewControllerDidCancel(self)
     }
     
     private func resetRatioButton() {
@@ -269,15 +276,7 @@ public class CropViewController: UIViewController {
         }
     }
     
-    private func handleCrop() {
-        let cropResult = cropView.crop()
-        guard let image = cropResult.croppedImage else {
-            delegate?.cropViewControllerDidFailToCrop(self, original: cropView.image)
-            return
-        }
-        
-        self.delegate?.cropViewControllerDidCrop(self, cropped: image, transformation: cropResult.transformation)        
-    }
+
 }
 
 // Auto layout
@@ -309,24 +308,6 @@ extension CropViewController: CropViewDelegate {
     }
     
     func cropViewDidEndResize(_ cropView: CropView) {
-        delegate?.cropViewControllerDidEndResize(self, original: cropView.image, cropInfo: cropView.getCropInfo())
-    }
-}
-
-
-// API
-extension CropViewController {
-    public func crop() {
-        let cropResult = cropView.crop()
-        guard let image = cropResult.croppedImage else {
-            delegate?.cropViewControllerDidFailToCrop(self, original: cropView.image)
-            return
-        }
-        
-        delegate?.cropViewControllerDidCrop(self, cropped: image, transformation: cropResult.transformation)
-    }
-    
-    public func process(_ image: UIImage) -> UIImage? {
-        return cropView.crop(image).croppedImage
+        delegate?.cropViewControllerDidEndResize(self, cropInfo: cropView.getCropInfo())
     }
 }
