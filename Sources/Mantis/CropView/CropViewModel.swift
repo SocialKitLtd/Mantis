@@ -8,34 +8,6 @@
 
 import UIKit
 
-enum ImageRotationType: CGFloat {
-    case none = 0
-    case counterclockwise90 = -90
-    case counterclockwise180 = -180
-    case counterclockwise270 = -270
-    
-    mutating func counterclockwiseRotate90() {
-        if self == .counterclockwise270 {
-            self = .none
-        } else {
-            self = ImageRotationType(rawValue: self.rawValue - 90) ?? .none
-        }
-    }
-    
-    mutating func clockwiseRotate90() {
-        switch (self) {
-        case .counterclockwise90:
-            self = .none
-        case .counterclockwise180:
-            self = .counterclockwise90
-        case .counterclockwise270:
-            self = .counterclockwise180
-        case .none:
-            self = .counterclockwise270
-        }
-    }
-}
-
 class CropViewModel: NSObject {
     var statusChanged: (_ status: CropViewStatus)->Void = { _ in }
     
@@ -59,15 +31,13 @@ class CropViewModel: NSObject {
         }
     }
     
-    var rotationType: ImageRotationType = .none
-    var aspectRatio: CGFloat = -1    
+    var aspectRatio: CGFloat = -1
     var cropLeftTopOnImage: CGPoint = .zero
     var cropRightBottomOnImage: CGPoint = CGPoint(x: 1, y: 1)
     
     func reset(forceFixedRatio: Bool = false) {
         cropBoxFrame = .zero
         degrees = 0
-        rotationType = .none
         
         if forceFixedRatio == false {
             aspectRatio = -1
@@ -79,34 +49,6 @@ class CropViewModel: NSObject {
         setInitialStatus()
     }
     
-    func rotateBy90(rotateAngle: CGFloat) {
-        if (rotateAngle < 0) {
-            rotationType.counterclockwiseRotate90()
-        } else {
-            rotationType.clockwiseRotate90()
-        }
-    }
-    
-    func counterclockwiseRotateBy90() {
-        rotationType.counterclockwiseRotate90()
-    }
-    
-    func clockwiseRotateBy90() {
-        rotationType.clockwiseRotate90()
-    }
-
-    func getTotalRadias(by radians: CGFloat) -> CGFloat {
-        return radians + rotationType.rawValue * CGFloat.pi / 180
-    }
-    
-    func getTotalRadians() -> CGFloat {
-        return getTotalRadias(by: radians)
-    }
-    
-    
-    func isUpOrUpsideDown() -> Bool {
-        return rotationType == .none || rotationType == .counterclockwise180
-    }
 
     func prepareForCrop(byTouchPoint point: CGPoint) {
         panOriginPoint = point

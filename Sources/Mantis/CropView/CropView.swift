@@ -147,7 +147,6 @@ class CropView: UIView {
     }
     
     private func imageStatusChanged() -> Bool {
-        if viewModel.getTotalRadians() != 0 { return true }
         
         if (forceFixedRatio) {
             if imageStatusChangedCheckForForceFixedRatio {
@@ -286,12 +285,7 @@ class CropView: UIView {
 
 // MARK: - Adjust UI
 extension CropView {
-    private func rotateScrollView() {
-        let totalRadians = forceFixedRatio ? viewModel.radians : viewModel.getTotalRadians()
-        
-        self.scrollView.transform = CGAffineTransform(rotationAngle: totalRadians)
-        self.updatePosition(by: totalRadians)
-    }
+   
     
     private func getInitialCropBoxRect() -> CGRect {
         guard image.size.width > 0 && image.size.height > 0 else {
@@ -299,15 +293,9 @@ extension CropView {
         }
         
         let outsideRect = getContentBounds()
-        
-        let insideRect: CGRect
-        
-        if viewModel.isUpOrUpsideDown() {
-            insideRect = CGRect(x: 0, y: 0, width: image.size.width, height: image.size.height)
-        } else {
-            insideRect = CGRect(x: 0, y: 0, width: image.size.height, height: image.size.width)
-        }
-        
+                
+        let insideRect = CGRect(x: 0, y: 0, width: image.size.width, height: image.size.height)
+       
         return GeometryHelper.getInscribeRect(fromOutsideRect: outsideRect, andInsideRect: insideRect)
     }
     
@@ -376,7 +364,7 @@ extension CropView {
         
         let newCropBounds = CGRect(x: 0, y: 0, width: viewModel.cropBoxFrame.width * scale, height: viewModel.cropBoxFrame.height * scale)
         
-        let radians = forceFixedRatio ? viewModel.radians : viewModel.getTotalRadians()
+        let radians: CGFloat = 0
         
         // calculate the new bounds of scroll view
         let newBoundWidth = abs(cos(radians)) * newCropBounds.size.width + abs(sin(radians)) * newCropBounds.size.height
@@ -462,13 +450,8 @@ extension CropView {
             let width = abs(cos(radians)) * gridOverlayView.frame.width + abs(sin(radians)) * gridOverlayView.frame.height
             let height = abs(sin(radians)) * gridOverlayView.frame.width + abs(cos(radians)) * gridOverlayView.frame.height
 
-            let newSize: CGSize
-            if viewModel.rotationType == .none || viewModel.rotationType == .counterclockwise180 {
-                newSize = CGSize(width: width, height: height)
-            } else {
-                newSize = CGSize(width: height, height: width)
-            }
-
+            let newSize = CGSize(width: width, height: height)
+            
             let scale = newSize.width / scrollView.bounds.width
             scrollView.updateLayout(byNewSize: newSize)
             return scale
@@ -492,7 +475,7 @@ extension CropView {
         
         let transformation = Transformation(
             offset: scrollView.contentOffset,
-            rotation: getTotalRadians(),
+            rotation: 0,
             scale: scrollView.zoomScale,
             manualZoomed: manualZoomed,
             intialMaskFrame: getInitialCropBoxRect(),
@@ -520,7 +503,7 @@ extension CropView {
                 
         return CropInfo(
             translation: translation,
-            rotation: getTotalRadians(),
+            rotation: 0,
             scale: scrollView.zoomScale,
             cropSize: gridOverlayView.frame.size,
             imageViewSize: imageContainer.bounds.size
@@ -528,79 +511,10 @@ extension CropView {
         
     }
     
-    func getTotalRadians() -> CGFloat {
-        return forceFixedRatio ? viewModel.radians : viewModel.getTotalRadians()
-    }
-    
     func crop() -> (croppedImage: UIImage?, transformation: Transformation) {
         return crop(image)
     }
         
-    func handleRotate() {
-        viewModel.resetCropFrame(by: getInitialCropBoxRect())
-        
-        scrollView.transform = .identity
-        scrollView.resetBy(rect: viewModel.cropBoxFrame)
-        
-        rotateScrollView()
-        
-        if viewModel.cropRightBottomOnImage != .zero {
-            var lt = CGPoint(x: viewModel.cropLeftTopOnImage.x * imageContainer.bounds.width, y: viewModel.cropLeftTopOnImage.y * imageContainer.bounds.height)
-            var rb = CGPoint(x: viewModel.cropRightBottomOnImage.x * imageContainer.bounds.width, y: viewModel.cropRightBottomOnImage.y * imageContainer.bounds.height)
-            
-            lt = imageContainer.convert(lt, to: self)
-            rb = imageContainer.convert(rb, to: self)
-            
-            let rect = CGRect(origin: lt, size: CGSize(width: rb.x - lt.x, height: rb.y - lt.y))
-            viewModel.cropBoxFrame = rect
-            
-            let contentRect = getContentBounds()
-            
-            adjustUIForNewCrop(contentRect: contentRect) { [weak self] in
-                self?.viewModel.setBetweenOperationStatus()
-            }
-        }
-    }
-    
-    func rotateBy90(rotateAngle: CGFloat, completion: @escaping ()->Void = {}) {
-        viewModel.setDegree90RotatingStatus()
-        let rorateDuration = 0.25
-        
-        if forceFixedRatio {
-          
-            
-            UIView.animate(withDuration: rorateDuration, animations: {
-            }) {[weak self] _ in
-                guard let self = self else { return }
-                self.viewModel.rotateBy90(rotateAngle: rotateAngle)
-                self.viewModel.setBetweenOperationStatus()
-                completion()
-            }
-            
-            return
-        }
-        
-        var rect = gridOverlayView.frame        
-        rect.size.width = gridOverlayView.frame.height
-        rect.size.height = gridOverlayView.frame.width
-        
-        let newRect = GeometryHelper.getInscribeRect(fromOutsideRect: getContentBounds(), andInsideRect: rect)
-        
-        let radian = rotateAngle
-        let transfrom = scrollView.transform.rotated(by: radian)
-        
-        UIView.animate(withDuration: rorateDuration, animations: {
-            self.viewModel.cropBoxFrame = newRect
-            self.scrollView.transform = transfrom
-            self.updatePositionFor90Rotation(by: radian + self.viewModel.radians)
-        }) {[weak self] _ in
-            guard let self = self else { return }
-            self.scrollView.updateMinZoomScale()
-            self.viewModel.rotateBy90(rotateAngle: rotateAngle)
-            self.viewModel.setBetweenOperationStatus()
-            completion()
-        }
-    }
     
     func reset() {
         scrollView.removeFromSuperview()
@@ -641,11 +555,7 @@ extension CropView {
     
     
     func getImageRatioH() -> Double {
-        if viewModel.rotationType == .none || viewModel.rotationType == .counterclockwise180 {
-            return Double(image.ratioH())
-        } else {
-            return Double(1/image.ratioH())
-        }
+        return Double(image.ratioH())
     }
     
     func transform(byTransformInfo transformation: Transformation, rotateDial: Bool = true) {
