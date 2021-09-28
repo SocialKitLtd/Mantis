@@ -8,6 +8,7 @@
 
 import UIKit
 import Mantis
+import AVFoundation
 var image = UIImage(named: "Rectangle.png")
 
 class ViewController: UIViewController, CropViewControllerDelegate {
@@ -24,7 +25,7 @@ class ViewController: UIViewController, CropViewControllerDelegate {
     @IBAction func normalPresent(_ sender: Any) {
         
         let vc = VC()
-        
+        vc.modalPresentationStyle = .fullScreen
         present(vc, animated: true)
 
        
@@ -70,48 +71,6 @@ class ViewController: UIViewController, CropViewControllerDelegate {
 }
 
 
-class VC: UIViewController {
-    
-    lazy var proxyView: ProxyView = {
-        return ProxyView(target: cropViewController.targetCropView)
-    }()
-    
-    let imageContainer = ImageContainer(image: image!)
-     
-    lazy var cropViewController: CropViewController = {
-        return CropViewController(embeddableView: imageContainer)
-    }()
-    
-    let container = UIView()
-    
-    let ratio: CGFloat = 1
-    override func viewDidLoad() {
-        super.viewDidLoad()
-        view.addSubview(proxyView)
-        view.addSubview(container)
-        container.backgroundColor = .red
-        view.backgroundColor = .blue
-        
-        cropViewController.view.alpha = 0.4
-        cropViewController.view.clipsToBounds = false
-        container.clipsToBounds = false
-        cropViewController.addAsChildTo(parentVc: self, inside: container)
-    }
-    
-    override func viewDidLayoutSubviews() {
-        super.viewDidLayoutSubviews()
-        proxyView.frame = view.bounds
-        container.bounds.size.width = 100
-        container.bounds.size.height = 100 * ratio
-        
-        
-        container.center = view.center
-    
-    }
-    
-    
-    
-}
 
 
 public extension UIViewController {
@@ -138,5 +97,18 @@ public extension UIViewController {
           view.bindMarginsToSuperviewWithBottomSafeArea()
           didMove(toParent: parentVc)
       }
+    
+}
+
+extension PlayerView: EmbeddableView {
+  
+    public var representableSize: CGSize {
+        return .init(width: 1080, height: 1920)
+    }
+    
+    public var ratio: CGFloat {
+        return 1080.0 / 1920.0
+    }
+    
     
 }

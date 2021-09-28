@@ -233,15 +233,16 @@ class CropView: UIView {
         let contentBounds = getContentBounds()
         
         guard newCropBoxFrame.width >= cropViewMinimumBoxSize
-                && newCropBoxFrame.minX >= contentBounds.minX
-                && newCropBoxFrame.maxX <= contentBounds.maxX
+//                && newCropBoxFrame.minX >= contentBounds.minX
+//                && newCropBoxFrame.maxX <= contentBounds.maxX
                 && newCropBoxFrame.height >= cropViewMinimumBoxSize
-                && newCropBoxFrame.minY >= contentBounds.minY
-                && newCropBoxFrame.maxY <= contentBounds.maxY else {
+//                && newCropBoxFrame.minY >= contentBounds.minY
+//                && newCropBoxFrame.maxY <= contentBounds.maxY else {
+        else {
             return
         }
         
-        if embeddableView.contains(rect: newCropBoxFrame, fromView: self) {
+        if embeddableView.contains(rect: newCropBoxFrame, fromView: self, tolerance:  1e-6) {
             viewModel.cropBoxFrame = newCropBoxFrame
         } else {
             let minX = max(viewModel.cropBoxFrame.minX, newCropBoxFrame.minX)
@@ -252,25 +253,25 @@ class CropView: UIView {
             var rect: CGRect
             
             rect = CGRect(x: minX, y: minY, width: newCropBoxFrame.width, height: maxY - minY)
-            if embeddableView.contains(rect: rect, fromView: self) {
+            if embeddableView.contains(rect: rect, fromView: self, tolerance:  1e-6) {
                 viewModel.cropBoxFrame = rect
                 return
             }
             
             rect = CGRect(x: minX, y: minY, width: maxX - minX, height: newCropBoxFrame.height)
-            if embeddableView.contains(rect: rect, fromView: self) {
+            if embeddableView.contains(rect: rect, fromView: self, tolerance:  1e-6) {
                 viewModel.cropBoxFrame = rect
                 return
             }
             
             rect = CGRect(x: newCropBoxFrame.minX, y: minY, width: newCropBoxFrame.width, height: maxY - minY)
-            if embeddableView.contains(rect: rect, fromView: self) {
+            if embeddableView.contains(rect: rect, fromView: self, tolerance:  1e-6) {
                 viewModel.cropBoxFrame = rect
                 return
             }
 
             rect = CGRect(x: minX, y: newCropBoxFrame.minY, width: maxX - minX, height: newCropBoxFrame.height)
-            if embeddableView.contains(rect: rect, fromView: self) {
+            if embeddableView.contains(rect: rect, fromView: self, tolerance:  1e-6) {
                 viewModel.cropBoxFrame = rect
                 return
             }

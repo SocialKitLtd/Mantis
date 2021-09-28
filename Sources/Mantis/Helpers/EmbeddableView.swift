@@ -14,7 +14,7 @@ public protocol EmbeddableView: UIView {
 }
 
 extension EmbeddableView {
-    func contains(rect: CGRect, fromView view: UIView, tolerance: CGFloat = 1e-6) -> Bool {
+    public func contains(rect: CGRect, fromView view: UIView, tolerance: CGFloat) -> Bool {
         let newRect = view.convert(rect, to: self)
         
         let p1 = newRect.origin

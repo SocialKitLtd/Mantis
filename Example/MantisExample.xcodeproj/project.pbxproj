@@ -18,6 +18,8 @@
 		A3E255C22701407A000A375C /* face.png in Resources */ = {isa = PBXBuildFile; fileRef = A3E255C12701407A000A375C /* face.png */; };
 		A3E255C4270140B9000A375C /* Rectangle.png in Resources */ = {isa = PBXBuildFile; fileRef = A3E255C3270140B9000A375C /* Rectangle.png */; };
 		A3E255C62701E140000A375C /* ProxyView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A3E255C52701E140000A375C /* ProxyView.swift */; };
+		A3E255CA27032CF7000A375C /* PlayerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A3E255C927032CF7000A375C /* PlayerView.swift */; };
+		A3E255CC27032D0E000A375C /* short.mp4 in Resources */ = {isa = PBXBuildFile; fileRef = A3E255CB27032D0E000A375C /* short.mp4 */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -52,6 +54,8 @@
 		A3E255C12701407A000A375C /* face.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = face.png; sourceTree = "<group>"; };
 		A3E255C3270140B9000A375C /* Rectangle.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = Rectangle.png; sourceTree = "<group>"; };
 		A3E255C52701E140000A375C /* ProxyView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProxyView.swift; sourceTree = "<group>"; };
+		A3E255C927032CF7000A375C /* PlayerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlayerView.swift; sourceTree = "<group>"; };
+		A3E255CB27032D0E000A375C /* short.mp4 */ = {isa = PBXFileReference; lastKnownFileType = file; path = short.mp4; sourceTree = "<group>"; };
 		B100014666B3974EEDE05B0C /* Pods_MantisExampleTests.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_MantisExampleTests.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
@@ -89,6 +93,8 @@
 			children = (
 				5F90A3CA23DCEBE800D9F27E /* MantisExample.entitlements */,
 				A3E255C52701E140000A375C /* ProxyView.swift */,
+				A3E255CB27032D0E000A375C /* short.mp4 */,
+				A3E255C927032CF7000A375C /* PlayerView.swift */,
 				5FC10B14217A9EDF00582874 /* AppDelegate.swift */,
 				A3E255C3270140B9000A375C /* Rectangle.png */,
 				A3E255C12701407A000A375C /* face.png */,
@@ -224,6 +230,7 @@
 				5FC10B1F217A9EE100582874 /* LaunchScreen.storyboard in Resources */,
 				5FC10B1C217A9EE100582874 /* Assets.xcassets in Resources */,
 				A3E255C22701407A000A375C /* face.png in Resources */,
+				A3E255CC27032D0E000A375C /* short.mp4 in Resources */,
 				5FC10B1A217A9EDF00582874 /* Main.storyboard in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -309,6 +316,7 @@
 				A3E255C62701E140000A375C /* ProxyView.swift in Sources */,
 				5FC10B17217A9EDF00582874 /* ViewController.swift in Sources */,
 				5FC10B15217A9EDF00582874 /* AppDelegate.swift in Sources */,
+				A3E255CA27032CF7000A375C /* PlayerView.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

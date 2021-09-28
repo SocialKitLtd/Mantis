@@ -67,6 +67,9 @@ public class CropViewController: UIViewController {
         return cropView.scrollView
     }
     
+    public var ratio: CGFloat {
+        cropView.embeddableView.ratio
+    }
     public init(embeddableView: EmbeddableView,
          config: Mantis.Config = Mantis.Config()) {
         
